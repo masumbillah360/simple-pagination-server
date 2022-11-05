@@ -21,11 +21,17 @@ const dbMaker = async () => {
       .db(`${process.env.DB_NAME}`)
       .collection("products");
     app.get("/products", async (req, res) => {
+      const size = parseInt(req.query.size);
+      const page = parseInt(req.query.page);
       const query = {};
       const productsData = productsCollection.find(query);
       const count = await productsCollection.estimatedDocumentCount();
-      const products = await productsData.toArray();
+      const products = await productsData
+        .skip(size * page)
+        .limit(size)
+        .toArray();
       res.send({ count, products });
+      console.log(size, page);
     });
   } catch (error) {}
 };
